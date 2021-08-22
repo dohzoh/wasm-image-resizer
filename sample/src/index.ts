@@ -140,13 +140,36 @@ function resizeImageLegacy(file: Blob, width: number, height: number): Promise<B
  * @returns {Promise<Blob>} image
  */
 async function resizeImageWasm(file: Blob, width: number, height: number, wasm: Wasm): Promise<Blob> {
+  console.log("resizeImageWasm start")
+  const objectURL = URL.createObjectURL(file);
+
+  console.time("img.decode()");
+  const img = new Image();
+  img.src = objectURL;
+  img.style.display = "none"
+  await img.decode()
+  console.timeEnd("img.decode()");
+
+  console.time("Document.createElement()");
+  const canvas = document.createElement('canvas');
+  canvas.width = img.naturalWidth
+  canvas.height = img.naturalHeight
+  console.timeEnd("Document.createElement()");
+
+  console.time("HTMLCanvasElement.getContext()");
+  const ctx = canvas.getContext('2d');
+  if (ctx == null) {
+    //reject('cannot get context.');
+    return;
+  }
+  console.timeEnd("HTMLCanvasElement.getContext()");
+  ctx.drawImage(img, 0, 0);
+
   console.log(`Original: ${file.size} Bytes`);
-  console.time("Blob to Uint8Array");
-  const arr = new Uint8Array(await file.arrayBuffer());
-  console.timeEnd("Blob to Uint8Array");
 
   console.time("wasm.resize_image()");
-  const result = wasm.resize_image(arr, width, height, "jpg")
+  const result = wasm.resize_image(canvas, ctx, width, height, "jpg")
+  console.log(`resize_image: `, width, height);
   console.timeEnd("wasm.resize_image()");
 
   console.time("Uint8Array to Blob");

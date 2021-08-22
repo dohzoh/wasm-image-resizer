@@ -9,3 +9,15 @@ Resize image with WebAssembly(Rust).
 * [Sample3](https://yokra9.github.io/wasm-image-resizer/sample/dist/JohnDayRiver.html)
 
 NOTE: `image::load_from_memory()` takes a long time, so it is not recommended to use this repository as a reference.
+
+## Build
+
+```
+sh ./build.sh
+```
+
+## Serve
+
+```
+sh ./serve.sh
+```

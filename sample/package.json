@@ -4,14 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "wasm": "cargo fmt && wasm-pack build --release",
     "build": "webpack",
     "start": "webpack serve",
     "link": "npm install -D ../pkg/"
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {},
   "devDependencies": {
+    "rimraf": "^3.0.2",
     "ts-loader": "^9.2.3",
     "typescript": "^4.3.5",
     "wasm-image-resizer": "file:../pkg",

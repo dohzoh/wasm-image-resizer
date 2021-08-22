@@ -3,6 +3,7 @@ extern crate wasm_bindgen;
 
 use image::*;
 use js_sys::*;
+use photon_rs::*;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -15,33 +16,49 @@ extern "C" {
 }
 
 #[wasm_bindgen]
-pub fn resize_image(arr: Uint8Array, width: usize, height: usize, fmt: &str) -> Uint8Array {
+pub fn wasm_run() {
+    let _res = photon_rs::run();
+}
+
+#[wasm_bindgen]
+pub fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+#[wasm_bindgen]
+pub fn resize_image(
+    canvas: web_sys::HtmlCanvasElement,
+    ctx: web_sys::CanvasRenderingContext2d,
+    width: usize,
+    height: usize,
+    fmt: &str,
+) -> Uint8Array {
     console_error_panic_hook::set_once();
 
-    // Uint8Array から Vec にコピーする
-    time("Uint8Array to Vec<u8>");
-    let buffer = arr.to_vec();
-    timeEnd("Uint8Array to Vec<u8>");
+    time("photon_rs::open_image in Rust");
+    let photon_image = photon_rs::open_image(canvas, ctx);
+    timeEnd("photon_rs::open_image in Rust");
 
     // バッファから画像を読み込む
-    time("image::load_from_memory()");
-    let img = load_from_memory(&buffer).expect("Error occurs at load image from buffer.");
-    timeEnd("image::load_from_memory()");
+    time("helpers::dyn_image_from_raw in Rust");
+    let dynamic_image = helpers::dyn_image_from_raw(&photon_image);
+    timeEnd("helpers::dyn_image_from_raw in Rust");
 
     // 指定サイズに画像をリサイズする
-    time("image::resize_exact()");
-    let resized = img.resize_exact(width as u32, height as u32, imageops::FilterType::Triangle);
-    timeEnd("image::resize_exact()");
+    time("image::resize_exact() in Rust");
+    let resized =
+        dynamic_image.resize_exact(width as u32, height as u32, imageops::FilterType::Triangle);
+    timeEnd("image::resize_exact() in Rust");
 
     // バッファに画像を書き出す
-    time("save_to_buffer");
+    time("save_to_buffer in Rust");
     let result = save_to_buffer(resized, fmt);
-    timeEnd("save_to_buffer");
+    timeEnd("save_to_buffer in Rust");
 
     // バッファから Uint8Array を作成
-    time("Vec<u8> to Uint8Array");
+    time("Vec<u8> to Uint8Array in Rust");
     let resp = Uint8Array::new(&unsafe { Uint8Array::view(&result) }.into());
-    timeEnd("Vec<u8> to Uint8Array");
+    timeEnd("Vec<u8> to Uint8Array in Rust");
 
     resp
 }

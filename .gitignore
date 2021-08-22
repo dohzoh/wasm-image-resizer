@@ -1,2 +1,7 @@
-target
-pkg
+.idea/
+target/
+pkg/
+sample/node_modules/
+sample/dist/script/
+
+./Cargo.toml
