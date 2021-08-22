@@ -1,4 +1,8 @@
 <script lang="ts">
+	import ResizeImageLegacy from './components/ResizeImageLegacy.svelte';
+	import ResizeImageWasm from './components/ResizeImageWasm.svelte';
+	import ResizeImageCV from './components/ResizeImageCV.svelte';
+
 	import {
 		Col, Container, Row, Image,
 		Input,
@@ -6,12 +10,18 @@
 		Dropdown,
 		DropdownItem,
 		DropdownMenu,
-		DropdownToggle
+		DropdownToggle,
+		Modal,
+		ModalBody,
+		ModalFooter,
+		ModalHeader,
 	} from 'sveltestrap'
 
 	export let name: string;
 	export let sum_numbers: Function;
 	const sum = sum_numbers(new Int32Array([1, 20, 2000]))
+
+	let props = {}
 
 	let imageFiles = [
 		{name: "JohnDayRiver"},
@@ -20,24 +30,38 @@
 	]
 
 	let solutions = [
-		{name: "Legacy(Canvas)", method: "resizeImageLegacy"},
-		{name: "WebAssembly", method: "resizeImageWasm"},
-		{name: "OpenCV", method: "resizeImageCV"},
+		{name: "Legacy(Canvas)", method: "ResizeImageLegacy"},
+		{name: "WebAssembly", method: "ResizeImageWasm"},
+		{name: "OpenCV", method: "ResizeImageCV"},
 	]
 	let solutionName = "Choose One"
+	let componentName = "ResizeImageLegacy"
 	let methodName = ""
 	let fileName = ""
 	let ignitionDisabled = "disabled"
+	let modalOpen = false
 
 	const onChangeSelect = (e: Event) => {
 		methodName = (e.target as HTMLInputElement).value as string
+		componentName = methodName
 		solutionName = (e.target as HTMLInputElement).textContent as string
-		onChangeEvents(e)
+		console.log("onChangeSelect", methodName)
+		ignitionCheck()
 	}
 
-	const onChangeEvents = (e: Event) => {
+	const onChangeImage = (e: Event) => {
+		fileName = (e.target as HTMLInputElement).value as string
+		console.log("onChangeImage", fileName)
+		ignitionCheck()
+	}
+
+	const ignitionCheck = () => {
 		ignitionDisabled = (methodName !== "" && fileName !== "") ? "" : "disabled"
-		console.log(ignitionDisabled)
+	}
+
+	const onClickToggle = (e: Event) => {
+		console.log("component", methodName)
+		modalOpen = !modalOpen;
 	}
 </script>
 
@@ -70,7 +94,7 @@
 	  <Col>
 		  <label>
 			  <input type=radio name="image_file"
-					 on:change={onChangeEvents}
+					 on:change={onChangeImage}
 					 value={imageFile.name}
 					 bind:group={fileName} />
 			  /img/{imageFile.name}.html.jpg
@@ -89,12 +113,32 @@
 		<Col></Col>
 		<Col>
 			<div>
-				<Button class="btn btn-danger" disabled={ignitionDisabled} block>Ignition</Button>
+				<Button class="btn btn-danger" disabled={ignitionDisabled} block on:click={onClickToggle}>Ignition</Button>
 			</div>
 		</Col>
 		<Col></Col>
 	</Row>
 </Container>
+
+<Modal isOpen={modalOpen} toggle={onClickToggle} size="xl">
+	<ModalHeader toggle={onClickToggle}>Modal title</ModalHeader>
+	<ModalBody>
+		Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+		tempor incididunt ut labore et dolore magna aliqua.
+
+		{#if componentName === "ResizeImageLegacy"}
+		<ResizeImageLegacy />
+		{:else if  componentName === "ResizeImageWasm"}
+		<ResizeImageWasm />
+		{:else}
+		<ResizeImageCV />	
+		{/if}
+		
+	</ModalBody>
+	<ModalFooter>
+		<Button color="primary" on:click={onClickToggle}>Do Something</Button>
+	</ModalFooter>
+</Modal>
 
 <style>
 	main {
