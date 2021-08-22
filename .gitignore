@@ -1,7 +1,9 @@
 .idea/
+.vscode/
+
 target/
 pkg/
-sample/node_modules/
+node_modules/
 sample/dist/script/
 
-./Cargo.toml
+./Cargo.lock

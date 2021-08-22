@@ -10,14 +10,20 @@ Resize image with WebAssembly(Rust).
 
 NOTE: `image::load_from_memory()` takes a long time, so it is not recommended to use this repository as a reference.
 
+## Install
+
+```
+npm i
+```
+
 ## Build
 
 ```
-sh ./build.sh
+npm run wasm
 ```
 
 ## Serve
 
 ```
-sh ./serve.sh
+npm run dev
 ```

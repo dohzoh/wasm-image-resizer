@@ -26,6 +26,11 @@ pub fn add(a: i32, b: i32) -> i32 {
 }
 
 #[wasm_bindgen]
+pub fn sum_numbers(numbers: &[i32]) -> i32 {
+    numbers.iter().sum()
+}
+
+#[wasm_bindgen]
 pub fn resize_image(
     canvas: web_sys::HtmlCanvasElement,
     ctx: web_sys::CanvasRenderingContext2d,
