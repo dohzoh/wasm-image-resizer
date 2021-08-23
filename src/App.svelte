@@ -91,24 +91,27 @@
 		const blob: Blob = await resp.blob()
 		childParams.originaltURL = URL.createObjectURL(blob)
 		console.log("originaltURL", childParams.originaltURL)
+
 		console.time("Image Ready")
 		let img: HTMLImageElement = new Image()
 		img.src = childParams.originaltURL
 		await img.decode()
 		console.timeEnd("Image Ready")
+
 		console.time("Canvas Ready")
 		let canvas: HTMLCanvasElement = document.createElement('canvas');
 		canvas.width = img.naturalWidth
 		canvas.height = img.naturalHeight
 		console.timeEnd("Canvas Ready")
+		
 		console.time("CanvasContext Ready")
 		let ctx: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D
-		ctx.drawImage(img, 0, 0);
+//		ctx.drawImage(img, 0, 0);
+		console.timeEnd("CanvasContext Ready")
 
 		childParams.canvas = canvas
 		childParams.ctx = ctx
-
-		console.timeEnd("CanvasContext Ready")
+		console.log("end preFIlter")
 	}
 
 
