@@ -4,7 +4,8 @@
 	import ResizeImageCV from './components/ResizeImageCV.svelte';
 
 	import {
-		Col, Container, Row, Image as CImage,
+		Col, Container, Row, Image,
+		Input,
 		Button,
 		Dropdown,
 		DropdownItem,
@@ -58,50 +59,10 @@
 		ignitionDisabled = (methodName !== "" && fileName !== "") ? "" : "disabled"
 	}
 
-	const onClickToggle = async(e: Event) => {
+	const onClickToggle = (e: Event) => {
 		console.log("component", methodName)
 		modalOpen = !modalOpen;
-		if(modalOpen){
-			await preFilter()
-		}
 	}
-
-	let url: string
-	let resp: any
-	let originaltURL: string
-	let objectURL: string
-	let img: HTMLImageElement
-	let canvas: HTMLCanvasElement
-	let ctx: CanvasRenderingContext2D
-
-	const preFilter: Function = async() => {
-		console.log("start preFIlter")
-		objectURL = ""
-		url = "./img/"+fileName+".html.jpg"
-		resp = await fetch(url)
-		const blob: Blob = await resp.blob()
-		originaltURL = URL.createObjectURL(blob)
-		console.log("originaltURL", originaltURL)
-
-		console.time("Image Ready")
-		img = new Image()
-		img.src = originaltURL
-		await img.decode()
-		console.timeEnd("Image Ready")
-
-		console.time("Canvas Ready")
-		canvas = document.createElement('canvas');
-		canvas.width = img.naturalWidth
-		canvas.height = img.naturalHeight
-		console.timeEnd("Canvas Ready")
-
-		console.time("CanvasContext Ready")
-		ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-		ctx.drawImage(img, 0, 0);
-		console.timeEnd("CanvasContext Ready")
-	}
-
-
 </script>
 
 <Container>
@@ -137,7 +98,7 @@
 					 value={imageFile.name}
 					 bind:group={fileName} />
 			  /img/{imageFile.name}.html.jpg
-			  <CImage thumbnail alt="{imageFile.name}" src="/img/{imageFile.name}.html.jpg?random=1" />
+			  <Image thumbnail alt="{imageFile.name}" src="/img/{imageFile.name}.html.jpg?random=1" />
 		  </label>
 	  </Col>
 {/each}
@@ -166,27 +127,13 @@
 		tempor incididunt ut labore et dolore magna aliqua.
 
 		{#if componentName === "ResizeImageLegacy"}
-		<ResizeImageLegacy 
-			let:originaltURL={originaltURL}
-			let:img={img}
-			let:canvas={canvas}
-			let:ctx={ctx}
-		/>
+		<ResizeImageLegacy />
 		{:else if  componentName === "ResizeImageWasm"}
-		<ResizeImageWasm
-			let:originaltURL={originaltURL}
-			let:img={img}
-			let:canvas={canvas}
-			let:ctx={ctx}
-		/>
+		<ResizeImageWasm />
 		{:else}
-		<ResizeImageCV
-			let:originaltURL={originaltURL}
-			let:img={img}
-			let:canvas={canvas}
-			let:ctx={ctx}
-		/>
+		<ResizeImageCV />	
 		{/if}
+		
 	</ModalBody>
 	<ModalFooter>
 		<Button color="primary" on:click={onClickToggle}>Do Something</Button>
