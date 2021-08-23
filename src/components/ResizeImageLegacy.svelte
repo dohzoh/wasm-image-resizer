@@ -9,13 +9,40 @@
 
 	const dispatch = createEventDispatcher();
 
-	onMount(() => {
-		console.log("ResizeImageLegacy.svelte.svelte", "green", e)
+	onMount(async() => {
+		console.log("ResizeImageLegacy start")
+
+		console.time("resized")
+		ctx.drawImage(
+			img, 
+			0, 0,
+			img.naturalWidth,
+			img.naturalHeight,
+			0, 0,
+			canvas.width,
+			canvas.height
+		)
+		console.timeEnd("resized")
+
+		console.time("generate blob image")
+		const blob = await toBlob(canvas)
+		const objectURL = URL.createObjectURL(blob)
+        console.log(`Resized: ${blob.size} Bytes`);
+		console.time("generate blob image")
+
 		dispatch('message', {
-			text: 'Hello!',
-			objectURL: originaltURL
+			canvas,
+			ctx,
 		});
+		console.log("ResizeImageLegacy end")
 	})
+
+	const toBlob = async(canvas) => {
+		return new Promise(function(resolve) {
+			canvas.toBlob(resolve)
+		})
+	}
+
 
 
 </script>

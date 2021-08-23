@@ -46,10 +46,13 @@
 	let methodName = ""
 	let fileName = ""
 	let ignitionDisabled = "disabled"
+	let currentComponent: Function
 
 	const onChangeSelect = (e: Event) => {
-		methodName = (e.target as HTMLInputElement).value as string
-		solutionName = (e.target as HTMLInputElement).textContent as string
+		const index: number = parseInt((e.target as HTMLInputElement).value as string)
+		solutionName = solutions[index].name
+		methodName = solutions[index].method
+		currentComponent = solutions[index].component
 		checkIgnition();
 	}
 
@@ -69,18 +72,6 @@
 			await preFilter()
 		}		
 		modalOpen = !modalOpen
-	}
-
-	const onMessageChild = async(e: Event) => {
-		console.log("Load Result start")
-		console.log("onMessageChild", e.detail)
-		const img: HTMLImageElement | null = document.querySelector("#resized_image") as HTMLImageElement
-		img.src = e.detail.objectURL
-		await img.decode()
-		img.width = img.naturalWidth
-		img.height = img.naturalHeight
-
-		console.log("Load Result end")
 	}
 
 	const preFilter: Function = async() => {
@@ -109,32 +100,42 @@
 //		ctx.drawImage(img, 0, 0);
 		console.timeEnd("CanvasContext Ready")
 
+		childParams.img = img
 		childParams.canvas = canvas
 		childParams.ctx = ctx
 		console.log("end preFIlter")
 	}
 
 
+	const postFilter: Function = async(e: Event) => {
+		console.log("postFilter start")
+		const canvas = e.detail.canvas
+		const ctx = e.detail.cts
+
+		console.time("generate blob image")
+		const blob = await toBlob(canvas)
+		const objectURL = URL.createObjectURL(blob)
+		console.time("generate blob image")
+
+		console.time("Load resized image")
+		const img: HTMLImageElement | null = document.querySelector("#resized_image") as HTMLImageElement
+		img.src = objectURL
+		await img.decode()
+		img.width = img.naturalWidth
+		img.height = img.naturalHeight
+		console.timeEnd("Load resized image")
+
+		console.log("Load Result end")
+	}
+
+	const toBlob = (canvas: HTMLCanvasElement) => {
+		return new Promise(function(resolve) {
+			canvas.toBlob(resolve)
+		})
+	}
 
 
-
-
-
-	const options = [
-		{ color: 'red',   component: ResizeImageWasm   },
-		{ color: 'green', component: ResizeImageLegacy },
-		{ color: 'blue',  component: ResizeImageCV  },
-	];
-
-	let selected = options[0];
 </script>
-
-
-<select bind:value={selected}>
-	{#each options as option}
-		<option value={option}>{option.color}</option>
-	{/each}
-</select>
 
 <Container>
   <Row>
@@ -150,9 +151,9 @@
 			<Dropdown>
 				<DropdownToggle caret>{solutionName}</DropdownToggle>
 				<DropdownMenu>
-					{#each solutions as solution}
-						<DropdownItem on:click={onChangeSelect} value={solution.method}>
-							{solution.name}
+					{#each solutions as { name, method }, index}
+						<DropdownItem on:click={onChangeSelect} value={index}>
+							{name}
 						</DropdownItem>
 					{/each}
 				</DropdownMenu>
@@ -196,9 +197,9 @@
     <ModalBody>
       Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
       tempor incididunt ut labore et dolore magna aliqua.<br />
-	  <svelte:component this={selected.component} 
+	  <svelte:component this={currentComponent} 
 	    {...childParams}
-		on:message={onMessageChild}
+		on:message={postFilter}
 	  />
 
 	  <CImage id="resized_image" />
