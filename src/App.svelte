@@ -42,10 +42,10 @@
 		{name: "WebAssembly", method: "resizeImageWasm", component: ResizeImageWasm},
 		{name: "OpenCV", method: "resizeImageCV", component: ResizeImageCV},
 	]
-	let solutionName = "Choose One"
-	let methodName = ""
-	let fileName = ""
-	let ignitionDisabled = "disabled"
+	let solutionName: string = "Choose One"
+	let methodName: string = ""
+	let fileName: string = ""
+	let ignitionDisabled: boolean = true
 	let currentComponent: Function
 
 	const onChangeSelect = (e: Event) => {
@@ -62,7 +62,7 @@
 	}
 
 	const checkIgnition = () => {
-		ignitionDisabled = (methodName !== "" && fileName !== "") ? "" : "disabled"
+		ignitionDisabled = (methodName !== "" && fileName !== "") ? false : true
 		console.log(ignitionDisabled)
 	}
 
@@ -74,7 +74,8 @@
 		modalOpen = !modalOpen
 	}
 
-	const preFilter: Function = async() => {
+	const preFilter = async() => {
+		console.time("##### "+solutionName+" #####")		
 		console.log("start preFIlter")
 		childParams.objectURL = ""
 		let url: string = "./img/"+fileName+".html.jpg"
@@ -91,8 +92,8 @@
 
 		console.time("Canvas Ready")
 		let canvas: HTMLCanvasElement = document.createElement('canvas');
-		canvas.width = img.naturalWidth
-		canvas.height = img.naturalHeight
+		canvas.width = 512
+		canvas.height = 512
 		console.timeEnd("Canvas Ready")
 		
 		console.time("CanvasContext Ready")
@@ -107,15 +108,15 @@
 	}
 
 
-	const postFilter: Function = async(e: Event) => {
+	const postFilter = async(e: CustomEvent) => {
 		console.log("postFilter start")
 		const canvas = e.detail.canvas
-		const ctx = e.detail.cts
+		const ctx = e.detail.ctx
 
 		console.time("generate blob image")
 		const blob = await toBlob(canvas)
 		const objectURL = URL.createObjectURL(blob)
-		console.time("generate blob image")
+		console.timeEnd("generate blob image")
 
 		console.time("Load resized image")
 		const img: HTMLImageElement | null = document.querySelector("#resized_image") as HTMLImageElement
@@ -126,11 +127,12 @@
 		console.timeEnd("Load resized image")
 
 		console.log("Load Result end")
+		console.timeEnd("##### "+solutionName+" #####")		
 	}
 
 	const toBlob = (canvas: HTMLCanvasElement) => {
 		return new Promise(function(resolve) {
-			canvas.toBlob(resolve)
+			canvas.toBlob(resolve, "image/jpeg", 0.8)
 		})
 	}
 
@@ -193,20 +195,26 @@
 </Container>
 
 <Modal isOpen={modalOpen} toggle={onToggle} size="xl">
-    <ModalHeader toggle={onToggle}>Modal title</ModalHeader>
+    <ModalHeader toggle={onToggle}>{solutionName}</ModalHeader>
     <ModalBody>
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua.<br />
-	  <svelte:component this={currentComponent} 
-	    {...childParams}
-		on:message={postFilter}
-	  />
-
-	  <CImage id="resized_image" />
+		<Container>
+			<Row>
+				<Col></Col>
+				<Col xs="auto">
+					<svelte:component this={currentComponent} 
+					{...childParams}
+					on:message={postFilter}
+				  />				
+				  <CImage id="resized_image" />
+				
+				
+				</Col>
+				<Col>.</Col>
+			</Row>
+		</Container>
     </ModalBody>
     <ModalFooter>
-      <Button color="primary" on:click={onToggle}>Do Something</Button>
-      <Button color="secondary" on:click={onToggle}>Cancel</Button>
+      <Button color="secondary" on:click={onToggle}>Close</Button>
     </ModalFooter>
   </Modal>
 

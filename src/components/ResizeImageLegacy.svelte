@@ -1,18 +1,18 @@
-<script>
+<script lang="ts">
 	import { onMount, createEventDispatcher } from "svelte"
 
-	export let objectURL
-	export let originaltURL
-	export let img
-	export let canvas
-	export let ctx
+	export let objectURL: string
+	export let originaltURL: string
+	export let img: HTMLImageElement
+	export let canvas: HTMLCanvasElement
+	export let ctx: CanvasRenderingContext2D
 
 	const dispatch = createEventDispatcher();
 
 	onMount(async() => {
 		console.log("ResizeImageLegacy start")
 
-		console.time("resized")
+		console.time("Resize image")
 		ctx.drawImage(
 			img, 
 			0, 0,
@@ -22,13 +22,7 @@
 			canvas.width,
 			canvas.height
 		)
-		console.timeEnd("resized")
-
-		console.time("generate blob image")
-		const blob = await toBlob(canvas)
-		const objectURL = URL.createObjectURL(blob)
-        console.log(`Resized: ${blob.size} Bytes`);
-		console.time("generate blob image")
+		console.timeEnd("Resize image")
 
 		dispatch('message', {
 			canvas,
@@ -37,17 +31,12 @@
 		console.log("ResizeImageLegacy end")
 	})
 
-	const toBlob = async(canvas) => {
+	const toBlob = async(canvas: HTMLCanvasElement) => {
 		return new Promise(function(resolve) {
 			canvas.toBlob(resolve)
 		})
 	}
-
-
-
 </script>
-	
-<strong>Green thing</strong>
 
 <style>
 	strong {
