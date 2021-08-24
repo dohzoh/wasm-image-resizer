@@ -20,6 +20,7 @@
 
 	export let name: string;
 	export let sum_numbers: Function;
+	export let resize_image: Function
 	const sum = sum_numbers(new Int32Array([1, 20, 2000]))
 
 	const childParams = {
@@ -29,6 +30,8 @@
 		canvas: <HTMLCanvasElement | null> null,
 		ctx: <CanvasRenderingContext2D | null> null,
 		cv: <any> null,
+		toBlob: <Function | null> null,
+		resize_image: <Function | null> null,
 	}
 
 	let imageFiles = [
@@ -108,6 +111,8 @@
 		childParams.img = img
 		childParams.canvas = canvas
 		childParams.ctx = ctx
+		childParams.toBlob = toBlob
+		childParams.resize_image = resize_image
 		console.log("end preFIlter")
 	}
 
@@ -116,11 +121,7 @@
 		console.log("postFilter start")
 		const canvas = e.detail.canvas
 		const ctx = e.detail.ctx
-
-		console.time("generate blob image")
-		const blob = await toBlob(canvas)
-		const objectURL = URL.createObjectURL(blob)
-		console.timeEnd("generate blob image")
+		const objectURL = e.detail.objectURL
 
 		console.time("Load resized image")
 		const img: HTMLImageElement | null = document.querySelector("#resized_image") as HTMLImageElement

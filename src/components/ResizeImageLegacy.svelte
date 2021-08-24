@@ -4,6 +4,7 @@
 	export let img: HTMLImageElement
 	export let canvas: HTMLCanvasElement
 	export let ctx: CanvasRenderingContext2D
+	export let toBlob: Function
 
 	const dispatch = createEventDispatcher();
 
@@ -22,9 +23,15 @@
 		)
 		console.timeEnd("Resize image")
 
+		console.time("generate blob image")
+		const blob = await toBlob(canvas)
+		const objectURL = URL.createObjectURL(blob)
+		console.timeEnd("generate blob image")
+
 		dispatch('message', {
 			canvas,
 			ctx,
+			objectURL,
 		});
 		console.log("ResizeImageLegacy end")
 	})

@@ -5,10 +5,11 @@
 	export let canvas: HTMLCanvasElement
 	export let ctx: CanvasRenderingContext2D
 	export let cv: any
+	export let toBlob: Function
 
 	const dispatch = createEventDispatcher();
 
-	onMount(() => {
+	onMount(async() => {
 		console.log("ResizeImageCV start")
 
 		console.time("Resize image")
@@ -32,10 +33,16 @@
 
 		console.timeEnd("Resize image")
 
+		console.time("generate blob image")
+		const blob = await toBlob(canvas)
+		const objectURL = URL.createObjectURL(blob)
+		console.timeEnd("generate blob image")
+
 		dispatch('message', {
 			canvas,
 			ctx,
+			objectURL,
 		});
-		console.log("/ResizeImageCV end")
+		console.log("ResizeImageCV end")
 	})
 </script>
