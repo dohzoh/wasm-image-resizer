@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { onMount, createEventDispatcher } from "svelte"
 
-	export let objectURL: string
-	export let originaltURL: string
 	export let img: HTMLImageElement
 	export let canvas: HTMLCanvasElement
 	export let ctx: CanvasRenderingContext2D
@@ -30,16 +28,4 @@
 		});
 		console.log("ResizeImageLegacy end")
 	})
-
-	const toBlob = async(canvas: HTMLCanvasElement) => {
-		return new Promise(function(resolve) {
-			canvas.toBlob(resolve)
-		})
-	}
 </script>
-
-<style>
-	strong {
-		color: green;
-	}
-</style>

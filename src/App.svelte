@@ -22,13 +22,13 @@
 	export let sum_numbers: Function;
 	const sum = sum_numbers(new Int32Array([1, 20, 2000]))
 
-
 	const childParams = {
 		objectURL: <string> "",
 		originaltURL: <string> "",
 		img: <HTMLImageElement | null> null,
 		canvas: <HTMLCanvasElement | null> null,
 		ctx: <CanvasRenderingContext2D | null> null,
+		cv: <any> null,
 	}
 
 	let imageFiles = [
@@ -72,6 +72,10 @@
 			await preFilter()
 		}		
 		modalOpen = !modalOpen
+	}
+
+	const onOpenCvReady = () => {
+		childParams.cv = (window as any).cv
 	}
 
 	const preFilter = async() => {
@@ -138,7 +142,24 @@
 
 
 </script>
+<!--
+<script type="text/javascript">
+	let imgElement = document.getElementById('imageSrc');
+	let inputElement = document.getElementById('fileInput');
+	inputElement.addEventListener('change', (e) => {
+	  imgElement.src = URL.createObjectURL(e.target.files[0]);
+	}, false);
 
+	imgElement.onload = function() {
+	  let mat = cv.imread(imgElement);
+	  cv.imshow('canvasOutput', mat);
+	  mat.delete();
+	};
+	function onOpenCvReady() {
+	  document.getElementById('status').innerHTML = 'OpenCV.js is ready.';
+	}
+	</script>
+-->
 <Container>
   <Row>
     <Col>
@@ -244,5 +265,6 @@
 <svelte:head>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+<script src="https://docs.opencv.org/master/opencv.js" on:load={onOpenCvReady}></script>
 </svelte:head>
 

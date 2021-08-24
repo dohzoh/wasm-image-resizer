@@ -38,7 +38,7 @@
     "sirv-cli": "^1.0.14",
     "sveltestrap": "^5.6.2"
   },
-	"xo": {
-		"space": 2
-	}  
+  "xo": {
+    "space": 2
+  }
 }
