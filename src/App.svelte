@@ -2,6 +2,7 @@
 	import ResizeImageWasm from './components/ResizeImageWasm.svelte';
 	import ResizeImageLegacy from './components/ResizeImageLegacy.svelte';
 	import ResizeImageCV from './components/ResizeImageCV.svelte';
+	import ResizeImagePhoton from './components/ResizeImagePhoton.svelte';
 
 	import {
 		Col, Container, Row, 
@@ -19,8 +20,14 @@
 	} from 'sveltestrap'
 
 	export let name: string;
-	export let sum_numbers: Function;
-	export let resize_image: Function
+	export let wasm: {
+		sum_numbers: Function,
+		resize_image: Function,
+		open_image: Function,
+		resize_img_browser: Function,
+		resize_image_browser: Function,
+	};
+	const sum_numbers = wasm.sum_numbers
 	const sum = sum_numbers(new Int32Array([1, 20, 2000]))
 
 	const childParams = {
@@ -31,7 +38,7 @@
 		ctx: <CanvasRenderingContext2D | null> null,
 		cv: <any> null,
 		toBlob: <Function | null> null,
-		resize_image: <Function | null> null,
+		wasm: <Object> {},
 	}
 
 	let imageFiles = [
@@ -44,6 +51,7 @@
 		{name: "Legacy(Canvas)", method: "resizeImageLegacy", component: ResizeImageLegacy},
 		{name: "WebAssembly", method: "resizeImageWasm", component: ResizeImageWasm},
 		{name: "OpenCV", method: "resizeImageCV", component: ResizeImageCV},
+		{name: "WebAssembly(fast)", method: "resizeImageCV", component: ResizeImagePhoton},
 	]
 	let solutionName: string = "Choose One"
 	let methodName: string = ""
@@ -112,7 +120,7 @@
 		childParams.canvas = canvas
 		childParams.ctx = ctx
 		childParams.toBlob = toBlob
-		childParams.resize_image = resize_image
+		childParams.wasm = wasm
 		console.log("end preFIlter")
 	}
 

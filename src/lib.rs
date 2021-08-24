@@ -3,6 +3,7 @@ extern crate wasm_bindgen;
 
 use image::*;
 use js_sys::*;
+use photon_rs::transform::SamplingFilter;
 use photon_rs::*;
 use wasm_bindgen::prelude::*;
 
@@ -86,4 +87,27 @@ fn save_to_buffer(img: DynamicImage, fmt_str: &str) -> Vec<u8> {
         .expect("Error occurs at save image from buffer.");
 
     result
+}
+
+#[wasm_bindgen]
+pub fn resize_image_browser(
+    canvas: web_sys::HtmlCanvasElement,
+    ctx: web_sys::CanvasRenderingContext2d,
+    width: u32,
+    height: u32,
+    sampling_filter: SamplingFilter,
+) -> web_sys::HtmlCanvasElement {
+    console_error_panic_hook::set_once();
+
+    time("photon_rs::open_image in Rust");
+    let photon_image = photon_rs::open_image(canvas, ctx);
+    timeEnd("photon_rs::open_image in Rust");
+
+    // バッファから画像を読み込む
+    time("photon_rs::transform::resize_img_browser in Rust");
+    let canvas =
+        photon_rs::transform::resize_img_browser(&photon_image, width, height, sampling_filter);
+    timeEnd("photon_rs::transform::resize_img_browser in Rust");
+
+    canvas
 }

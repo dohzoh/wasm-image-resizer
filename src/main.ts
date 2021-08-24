@@ -1,4 +1,4 @@
-import init, {sum_numbers, resize_image} from '../pkg/wasm_image_resizer.js';
+import init, {sum_numbers, resize_image, open_image, resize_img_browser, resize_image_browser} from '../pkg/wasm_image_resizer.js';
 // @is-ignore
 import path from '../pkg/wasm_image_resizer_bg.wasm';
 import App from './App.svelte';
@@ -10,8 +10,7 @@ const app = (async () => {
     target: document.body,
     props: {
       name: 'Resize Image Benchmark',
-      sum_numbers,
-      resize_image,
+      wasm: {sum_numbers, resize_image, open_image, resize_img_browser, resize_image_browser}
     },
   });
 })();

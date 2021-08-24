@@ -4,8 +4,11 @@
 	export let img: HTMLImageElement
 	export let canvas: HTMLCanvasElement
 	export let ctx: CanvasRenderingContext2D
+	export let toBlob: Function
 	export let wasm: {
-		resize_image: Function
+		open_image: Function,
+		resize_img_browser: Function,
+		resize_image_browser: Function,
 	};
 
 	const dispatch = createEventDispatcher();
@@ -20,15 +23,11 @@
 		console.timeEnd("Prepare Canvas");
 
 		console.time("Resize image")
-		const result: Uint8Array = wasm.resize_image(canvas, ctx, 512, 512, "jpg")
+		const result: HTMLCanvasElement = wasm.resize_image_browser(canvas, ctx, 512, 512, 1)
 		console.timeEnd("Resize image")
 
-		console.time("Uint8Array to Blob");
-		const blob = new Blob([result]);
-		console.log(`Resized: ${blob.size} Bytes`);
-		console.timeEnd("Uint8Array to Blob");
-
 		console.time("generate blob image")
+		const blob = await toBlob(result)
 		const objectURL = URL.createObjectURL(blob)
 		console.timeEnd("generate blob image")
 
