@@ -6,6 +6,7 @@ use js_sys::*;
 use photon_rs::transform::SamplingFilter;
 use photon_rs::*;
 use wasm_bindgen::prelude::*;
+use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, ImageData};
 
 #[wasm_bindgen]
 extern "C" {
@@ -41,14 +42,30 @@ pub fn resize_image(
 ) -> Uint8Array {
     console_error_panic_hook::set_once();
 
-    time("photon_rs::open_image in Rust");
-    let photon_image = photon_rs::open_image(canvas, ctx);
-    timeEnd("photon_rs::open_image in Rust");
+    time("get_image_data in Rust");
+    let image_width = canvas.width();
+    let image_height = canvas.height();
+
+    // let data: ImageData = ctx.get_image_data(0.0, 0.0, 100.0, 100.0).unwrap();
+    let data: ImageData = ctx
+        .get_image_data(0.0, 0.0, image_width as f64, image_height as f64)
+        .unwrap();
+    timeEnd("get_image_data in Rust");
+    time("data.data() in Rust");
+    let image_data = data.data().to_vec();
+    //    let photon_image = photon_rs::open_image(canvas, ctx);
+    timeEnd("data.data() in Rust");
 
     // バッファから画像を読み込む
-    time("helpers::dyn_image_from_raw in Rust");
-    let dynamic_image = helpers::dyn_image_from_raw(&photon_image);
-    timeEnd("helpers::dyn_image_from_raw in Rust");
+    time("ImageBuffer::from_vec in Rust");
+    //    let _len_vec = photon_image.raw_pixels.len() as u128;
+    let img_buffer = image::ImageBuffer::from_vec(image_width, image_height, image_data).unwrap();
+    timeEnd("ImageBuffer::from_vec in Rust");
+    time("DynamicImage::ImageRgba8 in Rust");
+    let dynamic_image = DynamicImage::ImageRgba8(img_buffer);
+
+    //    let dynamic_image = helpers::dyn_image_from_raw(&photon_image);
+    timeEnd("DynamicImage::ImageRgba8 in Rust");
 
     // 指定サイズに画像をリサイズする
     time("image::resize_exact() in Rust");
